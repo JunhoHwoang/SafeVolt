@@ -10,29 +10,14 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import Pagination from "./Pagination";
 import { FadeIn } from "./ui/FadeInComp";
+import { Cards } from "./types/Cards";
 
-// Define the interface for our card data
-interface CardData {
-  id: number;
-  date: string;
-  time: string;
-  overview: string;
-  description: string;
-  category: string;
-  hazards: [];
-  prevention: string;
-  solution: string;
-  lesson: string;
-  severityScore: number;
-}
-
-// Props for the CardList component
 interface CardListProps {
-  cards: CardData[];
+  cards: Cards[];
 }
 
 // Individual Card component
-const CardItem: React.FC<CardData> = ({
+const CardItem: React.FC<Cards> = ({
   overview,
   date,
   description,
@@ -55,15 +40,7 @@ const CardItem: React.FC<CardData> = ({
         })}
       </Badge>
       <div className="flex items-center space-x-2">
-        <Badge
-          variant={
-            category === "LOW"
-              ? "low"
-              : category === "MEDIUM"
-              ? "medium"
-              : "HIGH"
-          }
-        >
+        <Badge variant={category.toLowerCase() as "low" | "medium" | "high"}>
           {category}
         </Badge>
         <Badge>Score: {severityScore}</Badge>

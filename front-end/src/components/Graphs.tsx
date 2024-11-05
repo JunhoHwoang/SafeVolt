@@ -19,17 +19,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { FadeIn } from "./ui/FadeInComp";
+import { Cards } from "./types/Cards";
 
 interface GraphsProps {
-  cardData: {
-    id: number;
-    date: string;
-    time: string;
-    overview: string;
-    description: string;
-    content: string;
-    severityScore: number;
-  }[];
+  cardData: Cards[];
 }
 
 export function Graphs({ cardData }: GraphsProps) {
@@ -59,11 +52,6 @@ export function Graphs({ cardData }: GraphsProps) {
       };
     });
   }, [cardData, activeView]);
-
-  const total = React.useMemo(
-    () => cardData?.reduce((acc, curr) => acc + curr.severityScore, 0),
-    [cardData]
-  );
 
   return (
     <div>

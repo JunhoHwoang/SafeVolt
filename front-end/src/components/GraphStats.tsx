@@ -1,17 +1,11 @@
-import React, { useMemo } from "react";
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FadeIn } from "./ui/FadeInComp";
+import { useMemo } from "react";
+import { Cards } from "./types/Cards";
 
 interface GraphStatsProps {
-  cardData: {
-    id: number;
-    data: string;
-    time: string;
-    overview: string;
-    description: string;
-    solution: string;
-    severityScore: number;
-  }[];
+  cardData: Cards[];
 }
 
 export function GraphStats({ cardData }: GraphStatsProps) {

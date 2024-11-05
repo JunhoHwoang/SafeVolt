@@ -19,21 +19,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-// Define an interface for items passed to the component
-interface Item {
-  id: string;
-  severityScore: number;
-  category: "HIGH" | "MEDIUM" | "LOW";
-  overview: string;
-  description: string;
-  date: string; // assume date is a string in "YYYY-MM-DD" format
-}
+import { Cards } from "./types/Cards";
 
 // Props interface for the FilterSort component
 interface FilterSortProps {
-  items: Item[];
-  onFilterSort: (filteredItems: Item[]) => void;
+  items: Cards[];
+  onFilterSort: (filteredItems: Cards[]) => void;
 }
 
 export const FilterSort = ({
@@ -165,7 +156,7 @@ export const FilterSort = ({
                     id={category}
                     checked={selectedCategory === category}
                     onCheckedChange={(checked) =>
-                      handleCategoryChange(checked, category)
+                      handleCategoryChange(Boolean(checked), category)
                     }
                     className="cursor-pointer"
                   />
