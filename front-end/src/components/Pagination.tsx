@@ -33,7 +33,7 @@ const Pagination: React.FC<PaginationProps> = ({
     currentPage + 1 < totalPages ? currentPage + 1 : null,
   ].filter((page): page is number => page !== null);
 
-  const { darkMode, toggleDarkMode } = useTheme();
+  const { darkMode } = useTheme();
 
   return (
     <div className="flex justify-center items-center space-x-2 mt-4">

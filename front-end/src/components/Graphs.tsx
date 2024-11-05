@@ -18,15 +18,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { FadeIn } from "./ui/FadeInComp";
 
 interface GraphsProps {
   cardData: {
     id: number;
-    datetime: string;
-    title: string;
+    date: string;
+    time: string;
+    overview: string;
     description: string;
     content: string;
-    score: number;
+    severityScore: number;
   }[];
 }
 
@@ -34,13 +36,16 @@ export function Graphs({ cardData }: GraphsProps) {
   const [activeView, setActiveView] = React.useState<"date" | "time">("date");
 
   const processedData = React.useMemo(() => {
-    return cardData.map(({ datetime, score }) => {
-      const dateObj = new Date(datetime);
+    return cardData?.map(({ date, time, severityScore }) => {
+      const dateObj = new Date(date + " " + time);
+      console.log(dateObj);
+
       return {
-        x: activeView === "date" 
-          ? dateObj.getTime() 
-          : dateObj.getHours() + dateObj.getMinutes() / 60, // Time as fraction of 24 hours
-        y: score,
+        x:
+          activeView === "date"
+            ? dateObj.getTime()
+            : dateObj.getHours() + dateObj.getMinutes() / 60, // Time as fraction of 24 hours
+        y: severityScore,
         date: dateObj.toLocaleDateString("en-US", {
           day: "numeric",
           month: "short",
@@ -56,10 +61,9 @@ export function Graphs({ cardData }: GraphsProps) {
   }, [cardData, activeView]);
 
   const total = React.useMemo(
-    () => cardData.reduce((acc, curr) => acc + curr.score, 0),
+    () => cardData?.reduce((acc, curr) => acc + curr.severityScore, 0),
     [cardData]
   );
-  const mean = (total / cardData.length).toFixed(2);
 
   return (
     <div>
@@ -81,65 +85,63 @@ export function Graphs({ cardData }: GraphsProps) {
           View by time
         </Toggle>
       </div>
-      <Card>
-        <CardHeader className="flex flex-col items-stretch space-y-4 border-b p-4">
-          <div className="flex flex-1 flex-col justify-center gap-1">
-            <CardTitle>Severe Scores</CardTitle>
-            <CardDescription>Distribution of scores over time</CardDescription>
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="text-md font-bold leading-none sm:text-xl">
-              Mean: {mean}
+      <FadeIn>
+        <Card>
+          <CardHeader className="flex flex-col items-stretch space-y-4 border-b p-4">
+            <div className="flex flex-1 flex-col justify-center gap-1">
+              <CardTitle>Severe Scores</CardTitle>
+              <CardDescription>
+                Distribution of scores over time
+              </CardDescription>
             </div>
-          </div>
-        </CardHeader>
-        <CardContent className="p-4">
-          <ResponsiveContainer width="100%" height={400}>
-            <ScatterChart
-              margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-            >
-              <CartesianGrid />
-              <XAxis
-                type="number"
-                dataKey="x"
-                name={activeView === "date" ? "date" : "time"}
-                domain={
-                  activeView === "date"
-                    ? ["auto", "auto"]
-                    : [0, 24] // 0 to 24 hours for time view
-                }
-                tickFormatter={(value) =>
-                  activeView === "date"
-                    ? new Date(value).toLocaleDateString()
-                    : `${String(Math.floor(value)).padStart(2, "0")}:00` // Format hour:minute
-                }
-                ticks={activeView === "time" ? [0, 6, 12, 18, 24] : undefined}
-              />
-              <YAxis type="number" dataKey="y" name="score" />
-              <Tooltip
-                cursor={{ strokeDasharray: "3 3" }}
-                content={({ active, payload }) => {
-                  if (active && payload && payload.length) {
-                    const data = payload[0].payload;
-                    return (
-                      <div className="bg-white p-2 border rounded shadow">
-                        <p>
-                          {activeView === "date"
-                            ? `Date: ${data.date}`
-                            : `Time: ${data.time}`}
-                        </p>
-                        <p>Score: {data.y}</p>
-                      </div>
-                    );
+          </CardHeader>
+          <CardContent className="p-4">
+            <ResponsiveContainer width="100%" height={400}>
+              <ScatterChart
+                margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+              >
+                <CartesianGrid />
+                <XAxis
+                  type="number"
+                  dataKey="x"
+                  name={activeView === "date" ? "date" : "time"}
+                  domain={
+                    activeView === "date" ? ["auto", "auto"] : [0, 24] // 0 to 24 hours for time view
                   }
-                  return null;
-                }}
-              />
-              <Scatter name="Scores" data={processedData} fill="red" />
-            </ScatterChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
+                  tickFormatter={
+                    (value) =>
+                      activeView === "date"
+                        ? new Date(value).toLocaleDateString()
+                        : `${String(Math.floor(value)).padStart(2, "0")}:00` // Format hour:minute
+                  }
+                  ticks={activeView === "time" ? [0, 6, 12, 18, 24] : undefined}
+                />
+                <YAxis type="number" dataKey="y" name="score" />
+                <Tooltip
+                  cursor={{ strokeDasharray: "3 3" }}
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      const data = payload[0].payload;
+                      return (
+                        <div className="bg-background p-2 border rounded shadow">
+                          <p>
+                            {activeView === "date"
+                              ? `Date: ${data.date}`
+                              : `Time: ${data.time}`}
+                          </p>
+                          <p>Score: {data.y}</p>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+                <Scatter name="Scores" data={processedData} fill="red" />
+              </ScatterChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </FadeIn>
     </div>
   );
 }

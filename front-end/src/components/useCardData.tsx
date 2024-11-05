@@ -2,15 +2,15 @@ import { useEffect, useState } from "react";
 import getCardsData from "./service/getCardsData";
 
 export default function useCardData() {
-  const [resume, setResume] = useState(null);
+  const [data, setData] = useState(null);
 
   useEffect(() => {
     const getData = async () => {
-      const resumeData = await getCardsData();
-      console.log(resumeData);
-      setResume(resumeData);
+      const data = await getCardsData();
+      console.log(data);
+      setData(data);
     };
     getData();
   }, []);
-  return resume;
+  return data;
 }

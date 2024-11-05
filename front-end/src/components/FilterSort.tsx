@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Dialog,
   DialogClose,
@@ -9,6 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "./ui/button";
+import { Checkbox } from "./ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -16,70 +19,59 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DatePicker } from "./DatePicker";
-import { ScoreFilter } from "./ScoreFilter";
-import { CategoryFilter } from "./CategoryFilter";
 
-export const FilterSort = ({ items, onFilterSort }) => {
-  const [selectedDate, setSelectedDate] = useState(null);
+export const FilterSort = ({ items = [], onFilterSort = () => {} }) => {
   const [selectedScore, setSelectedScore] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [sortOrder, setSortOrder] = useState("high");
+  const [sortOrder, setSortOrder] = useState(null);
+  const categories = ["HIGH", "MEDIUM", "LOW"];
 
-  // Handle date change from DatePicker
-  const handleDateChange = (date) => {
-    setSelectedDate(date);
-    applyFilterSort();
+  // Handle score change from RadioGroup
+  const handleScoreChange = (value) => {
+    
+    if (value === "option-one") {
+      setSelectedScore([0, 20]);
+    } else if (value === "option-two") {
+      setSelectedScore([20, 40]);
+    } else if (value === "option-three") {
+      setSelectedScore([40, 60]);
+    }
   };
 
-  // Handle score change from ScoreFilter
-  const handleScoreChange = (score) => {
-    setSelectedScore(score);
-    applyFilterSort();
+  // Handle category change from Checkbox
+  const handleCategoryChange = (checked, category) => {
+    setSelectedCategory(checked ? category : null);
   };
 
-  // Handle category change from CategoryFilter
-  const handleCategoryChange = (category) => {
-    setSelectedCategory(category);
-    applyFilterSort();
-  };
-
-  // Handle sort change
+  // Handle sort change from Select
   const handleSortChange = (value) => {
-    console.log("Sort value selected:", value);
     setSortOrder(value);
   };
 
-  // Use useEffect to trigger sorting whenever sortOrder changes
+  // Use useEffect to trigger sorting and filtering whenever any relevant state changes
   useEffect(() => {
-    if (sortOrder) {
-      applyFilterSort();
-    }
-  }, [sortOrder, selectedDate, selectedScore, selectedCategory]);
+    applyFilterSort();
+  }, [sortOrder, selectedScore, selectedCategory, items]);
 
   // Function to filter and sort items
   const applyFilterSort = () => {
     let filteredItems = [...items];
-    console.log("Original Items:", items);
-    console.log("Current Filters - Date:", selectedDate, "Score:", selectedScore, "Category:", selectedCategory, "Sort Order:", sortOrder);
 
-    // Apply filters
-    if (selectedDate) {
-      filteredItems = filteredItems.filter((item) => {
-        return new Date(item.datetime).toDateString() === new Date(selectedDate).toDateString();
-      });
-    }
-
+    // Filter by score range if selected
     if (selectedScore) {
       filteredItems = filteredItems.filter((item) => {
-        return item.score >= selectedScore[0] && item.score <= selectedScore[1];
+        return (
+          item.severityScore >= selectedScore[0] &&
+          item.severityScore <= selectedScore[1]
+        );
       });
     }
 
+    // Filter by category if selected
     if (selectedCategory) {
-      filteredItems = filteredItems.filter((item) => {
-        return item.category === selectedCategory;
-      });
+      filteredItems = filteredItems.filter(
+        (item) => item.category === selectedCategory
+      );
     }
 
     // Apply sorting with a fresh copy of the filtered items
@@ -87,22 +79,21 @@ export const FilterSort = ({ items, onFilterSort }) => {
       filteredItems = filteredItems.slice().sort((a, b) => {
         switch (sortOrder) {
           case "high":
-            return b.score - a.score; // Score High to Low
+            return b.severityScore - a.severityScore; // Score High to Low
           case "low":
-            return a.score - b.score; // Score Low to High
+            return a.severityScore - b.severityScore; // Score Low to High
           case "newest":
-            return new Date(b.datetime) - new Date(a.datetime); // Newest first
+            return new Date(b.date) - new Date(a.date); // Newest first
           case "oldest":
-            return new Date(a.datetime) - new Date(b.datetime); // Oldest first
+            return new Date(a.date) - new Date(b.date); // Oldest first
           case "lex":
-            return a.title.localeCompare(b.title); // A-Z by title
+            return a.overview.localeCompare(b.overview); // A-Z by title
           default:
             return 0;
         }
       });
     }
 
-    console.log("Filtered and Sorted Items:", filteredItems);
     // Call the callback function with the filtered and sorted items
     onFilterSort(filteredItems);
   };
@@ -118,9 +109,44 @@ export const FilterSort = ({ items, onFilterSort }) => {
             <DialogTitle>Filter</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <DatePicker onChange={handleDateChange} />
-            <ScoreFilter onChange={handleScoreChange} />
-            <CategoryFilter onChange={handleCategoryChange} />
+            <div className="flex flex-col space-y-2">
+              <Label>Score Range</Label>
+              <RadioGroup onValueChange={handleScoreChange}>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="option-one" id="option-one" />
+                  <Label htmlFor="option-one">0-20</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="option-two" id="option-two" />
+                  <Label htmlFor="option-two">20-40</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="option-three" id="option-three" />
+                  <Label htmlFor="option-three">40-60</Label>
+                </div>
+              </RadioGroup>
+            </div>
+            <div className="flex flex-col space-y-2">
+              <Label>Category</Label>
+              {categories.map((category) => (
+                <div key={category} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={category}
+                    checked={selectedCategory === category}
+                    onCheckedChange={(checked) =>
+                      handleCategoryChange(checked, category)
+                    }
+                    className="cursor-pointer"
+                  />
+                  <Label
+                    htmlFor={category}
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                  >
+                    {category}
+                  </Label>
+                </div>
+              ))}
+            </div>
           </div>
           <DialogFooter className="sm:justify-start">
             <DialogClose asChild>
@@ -139,8 +165,8 @@ export const FilterSort = ({ items, onFilterSort }) => {
         <SelectContent>
           <SelectItem value="high">Score High to Low</SelectItem>
           <SelectItem value="low">Score Low to High</SelectItem>
-          <SelectItem value="oldest">Oldest</SelectItem>
           <SelectItem value="newest">Newest</SelectItem>
+          <SelectItem value="oldest">Oldest</SelectItem>
           <SelectItem value="lex">A-Z</SelectItem>
         </SelectContent>
       </Select>
