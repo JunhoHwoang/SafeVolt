@@ -20,31 +20,62 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export const FilterSort = ({ items = [], onFilterSort = () => {} }) => {
-  const [selectedScore, setSelectedScore] = useState(null);
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [sortOrder, setSortOrder] = useState(null);
-  const categories = ["HIGH", "MEDIUM", "LOW"];
+// Define an interface for items passed to the component
+interface Item {
+  id: string;
+  severityScore: number;
+  category: "HIGH" | "MEDIUM" | "LOW";
+  overview: string;
+  description: string;
+  date: string; // assume date is a string in "YYYY-MM-DD" format
+}
+
+// Props interface for the FilterSort component
+interface FilterSortProps {
+  items: Item[];
+  onFilterSort: (filteredItems: Item[]) => void;
+}
+
+export const FilterSort = ({
+  items = [],
+  onFilterSort = () => {},
+}: FilterSortProps) => {
+  const [selectedScore, setSelectedScore] = useState<[number, number] | null>(
+    null
+  );
+  const [selectedCategory, setSelectedCategory] = useState<
+    "HIGH" | "MEDIUM" | "LOW" | null
+  >(null);
+  const [sortOrder, setSortOrder] = useState<string | null>(null);
+  const categories: Array<"HIGH" | "MEDIUM" | "LOW"> = [
+    "HIGH",
+    "MEDIUM",
+    "LOW",
+  ];
 
   // Handle score change from RadioGroup
-  const handleScoreChange = (value) => {
-    
+  const handleScoreChange = (value: string) => {
     if (value === "option-one") {
       setSelectedScore([0, 20]);
     } else if (value === "option-two") {
       setSelectedScore([20, 40]);
     } else if (value === "option-three") {
       setSelectedScore([40, 60]);
+    } else {
+      setSelectedScore(null);
     }
   };
 
   // Handle category change from Checkbox
-  const handleCategoryChange = (checked, category) => {
+  const handleCategoryChange = (
+    checked: boolean,
+    category: "HIGH" | "MEDIUM" | "LOW"
+  ) => {
     setSelectedCategory(checked ? category : null);
   };
 
   // Handle sort change from Select
-  const handleSortChange = (value) => {
+  const handleSortChange = (value: string) => {
     setSortOrder(value);
   };
 
@@ -83,9 +114,9 @@ export const FilterSort = ({ items = [], onFilterSort = () => {} }) => {
           case "low":
             return a.severityScore - b.severityScore; // Score Low to High
           case "newest":
-            return new Date(b.date) - new Date(a.date); // Newest first
+            return new Date(b.date).getTime() - new Date(a.date).getTime(); // Newest first
           case "oldest":
-            return new Date(a.date) - new Date(b.date); // Oldest first
+            return new Date(a.date).getTime() - new Date(b.date).getTime(); // Oldest first
           case "lex":
             return a.overview.localeCompare(b.overview); // A-Z by title
           default:

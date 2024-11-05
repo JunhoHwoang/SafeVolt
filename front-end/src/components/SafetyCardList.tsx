@@ -3,7 +3,6 @@ import {
   Card,
   CardHeader,
   CardTitle,
-  CardDescription,
   CardContent,
   CardFooter,
 } from "./ui/card";
@@ -37,7 +36,6 @@ const CardItem: React.FC<CardData> = ({
   overview,
   date,
   description,
-  solution,
   severityScore,
   category,
 }) => (
