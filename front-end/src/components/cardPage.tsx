@@ -10,28 +10,42 @@ import useCardData from "./useCardData";
 import { Link } from "react-router-dom";
 import { Badge } from "./ui/badge";
 
+// Define the Card interface
+interface Card {
+  id: string;
+  category: string;
+  overview: string;
+  description: string;
+  solution: string;
+  severityScore: string;
+  date: string;
+  time: string;
+  lesson: string;
+  prevention: string;
+}
+
 const CardPage = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  const id = queryParams.get("id");
-  const datetime = queryParams.get("datetime");
-  const overview = queryParams.get("overview");
-  const description = queryParams.get("description");
-  const solution = queryParams.get("solution");
-  const lesson = queryParams.get("lesson");
-  const prevention = queryParams.get("prevention");
-  const severityScore = queryParams.get("severityScore");
-  const category = queryParams.get("category");
+  
+  const id = queryParams.get("id") ?? "";
+  const datetime = queryParams.get("datetime") ?? "";
+  const overview = queryParams.get("overview") ?? "";
+  const description = queryParams.get("description") ?? "";
+  const solution = queryParams.get("solution") ?? "";
+  const lesson = queryParams.get("lesson") ?? "";
+  const prevention = queryParams.get("prevention") ?? "";
+  const severityScore = queryParams.get("severityScore") ?? "";
+  const category = queryParams.get("category") ?? "";
 
-  console.log(category);
-  const allCards = useCardData();
-  const [similarCards, setSimilarCards] = useState([]);
+  const allCards: Card[] = useCardData() || [];
+  const [similarCards, setSimilarCards] = useState<Card[]>([]);
 
   useEffect(() => {
     if (allCards && category) {
       const filtered = allCards
-        .filter((card) => card.category === category && card.id !== id)
-        .slice(0, 3); // Get up to 3 similar cards
+        .filter((card: Card) => card.category === category && card.id !== id)
+        .slice(0, 3);
       setSimilarCards(filtered);
     }
   }, [allCards, category, id]);
@@ -62,8 +76,7 @@ const CardPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Alert severity="info" variant="outlined">
                   <h3 className="text-xl font-semibold mb-2 text-foreground">
-                    Description:
-                    {category}
+                    Description: {category}
                   </h3>
                   <p className="text-base text-foreground">{description}</p>
                 </Alert>
@@ -97,11 +110,11 @@ const CardPage = () => {
                 <CardTitle>Similar Cases</CardTitle>
                 <Badge
                   variant={
-                    category === "LOW"
+                    category.toLowerCase() === "low"
                       ? "low"
-                      : category === "MEDIUM"
+                      : category.toLowerCase() === "medium"
                       ? "medium"
-                      : "HIGH"
+                      : "high"
                   }
                   className="w-fit px-2"
                 >
@@ -111,25 +124,15 @@ const CardPage = () => {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {similarCards.map((card) => (
+                  {similarCards.map((card: Card) => (
                     <Link
                       key={card.id}
-                      to={`/card?id=${card.id}&overview=${
-                        card.overview
-                      }&description=${card.description}&solution=${
-                        card.solution
-                      }&severityScore=${card.severityScore}&datetime=${
-                        card.date + " " + card.time
-                      }&lesson=${card.lesson}&prevention=${
-                        card.prevention
-                      }&category=${card.category}`}
+                      to={`/card?id=${card.id}&overview=${card.overview}&description=${card.description}&solution=${card.solution}&severityScore=${card.severityScore}&datetime=${card.date} ${card.time}&lesson=${card.lesson}&prevention=${card.prevention}&category=${card.category}`}
                       className="no-underline"
                     >
                       <Card className="h-full">
                         <CardHeader>
-                          <CardTitle className="text-lg">
-                            {card.overview}
-                          </CardTitle>
+                          <CardTitle className="text-lg">{card.overview}</CardTitle>
                         </CardHeader>
                         <CardContent>
                           <p className="text-sm text-muted-foreground">

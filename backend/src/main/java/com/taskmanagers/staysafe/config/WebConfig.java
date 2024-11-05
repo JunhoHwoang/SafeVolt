@@ -10,7 +10,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")  // Allow CORS on all endpoints
-                .allowedOrigins("http://localhost:5174")  // Add the origin of your React frontend
+                .allowedOrigins("http://localhost:5177")  // Add the origin of your React frontend
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH")  // HTTP methods to allow
                 .allowedHeaders("*")
                 .allowCredentials(true);
