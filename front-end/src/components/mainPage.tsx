@@ -1,17 +1,16 @@
+import { useState, useEffect } from "react";
 import Header from "./header";
 import { SafetyCardList } from "./SafetyCardList";
 import { FilterSort } from "./FilterSort";
 import { Graphs } from "./Graphs";
-import { useState, useEffect } from "react";
 import { GraphStats } from "./GraphStats";
 import useCardData from "./useCardData";
+import { Cards } from "./types/Cards";
 
 export default function MainPage() {
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const cardData = useCardData() || []; // Ensure cardData is always an array
-  const [filteredItems, setFilteredItems] = useState([]);
+  const cardData: Cards[] = useCardData() || [];
+  const [filteredItems, setFilteredItems] = useState<Cards[]>(cardData);
 
-  // Update filteredItems whenever cardData changes
   useEffect(() => {
     setFilteredItems(cardData);
   }, [cardData]);
